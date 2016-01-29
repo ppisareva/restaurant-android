@@ -54,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                ((App)getApplication()).getRestorants();
+                System.err.println("Client_id "+ BuildConfig.CLIENT_ID);
             }
         });
     }

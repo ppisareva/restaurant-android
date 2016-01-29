@@ -2,25 +2,26 @@ package com.example.polina.restaurantapplication;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by polina on 27.01.16.
  */
 public class ListFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
+
+
+
+
+    private List<Restaurant> restaurantList = new ArrayList<>();
         private static final String ARG_SECTION_NUMBER = "section_number";
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
         public static ListFragment newInstance(int sectionNumber) {
             ListFragment fragment = new ListFragment();
             Bundle args = new Bundle();
@@ -34,9 +35,16 @@ public class ListFragment extends Fragment {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main2, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            View rootView = inflater.inflate(R.layout.fragment_list, container, false);
+            RecyclerView mRecyclerView; mRecyclerView = (RecyclerView) rootView.findViewById(R.id.my_recycler_view);
+           final RecyclerView.LayoutManager mLayoutManager; mLayoutManager = new LinearLayoutManager(getActivity());
+            mRecyclerView.setLayoutManager(mLayoutManager);
+            Restaurant restaurant = new Restaurant();
+            restaurant.setDistance(345);
+            restaurant.setName("kjnkjnjknk");
+            restaurantList.add(restaurant);
+            RecyclerView.Adapter mAdapter; mAdapter = new RestaurantAdapter(getActivity(), restaurantList);
+            mRecyclerView.setAdapter(mAdapter);
             return rootView;
         }
     }
