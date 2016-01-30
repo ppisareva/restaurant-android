@@ -3,6 +3,8 @@ package com.example.polina.restaurantapplication;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,6 +23,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,12 +55,14 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((App)getApplication()).getRestorants();
+           //    ArrayList <Restaurant> restaurants =  ((App) getApplication()).getRestaurants("near", "Kiev", 0);
+        ((App) getApplication()).getRestorans();
+
+
                 System.err.println("Client_id "+ BuildConfig.CLIENT_ID);
             }
         });
@@ -102,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -122,8 +132,7 @@ public class MainActivity extends AppCompatActivity {
         public int getCount() {
             return 2;
         }
-
-
     }
+
 
 }

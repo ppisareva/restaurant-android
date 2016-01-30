@@ -57,10 +57,5 @@ public class Venue implements Serializable {
 		this.contact = contact;
 	}
 
-	@Override
-	public String toString() {
-		return "Venue{" +
-				"name='" +
-				'}';
-	}
+
 }

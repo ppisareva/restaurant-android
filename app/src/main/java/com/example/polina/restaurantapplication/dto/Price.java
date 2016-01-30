@@ -1,10 +1,12 @@
 package com.example.polina.restaurantapplication.dto;
 
+import java.io.Serializable;
+
 /**
  * Created by polina on 28.01.16.
  */
-public class Price {
-    private String tier;
+public class Price implements Serializable {
+    private int tier;
     private String message;
     private String currency;
 
@@ -16,11 +18,11 @@ public class Price {
         this.message = message;
     }
 
-    public String getTier() {
+    public int getTier() {
         return tier;
     }
 
-    public void setTier(String tier) {
+    public void setTier(int tier) {
         this.tier = tier;
     }
 

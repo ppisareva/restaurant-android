@@ -1,5 +1,8 @@
 package com.example.polina.restaurantapplication;
 
+
+import com.example.polina.restaurantapplication.dto.FoursquareDto;
+
 /**
  * Created by polina on 28.01.16.
  */
@@ -9,7 +12,17 @@ public class Restaurant {
     private double lng;
     private int distance;
     private String formattedPhone;
-    private String tier;
+    private int tier = 0;
+
+    public Restaurant(FoursquareDto.Result result) {
+        name=result.venue.getName();
+        lat=result.venue.getLocation().getLat();
+        lng=result.venue.getLocation().getLng();
+        distance=result.venue.getLocation().getDistance();
+        formattedPhone=result.venue.getContact().getFormattedPhone();
+        if(result.venue.getPrice()!=null)
+            tier=result.venue.getPrice().getTier();
+    }
 
     public int getDistance() {
         return distance;
@@ -51,14 +64,11 @@ public class Restaurant {
         this.formattedPhone = formattedPhone;
     }
 
-    public String getTier() {
+    public int getTier() {
         return tier;
     }
 
-    public void setTier(String tier) {
+    public void setTier(int tier) {
         this.tier = tier;
     }
-
-
-
 }
