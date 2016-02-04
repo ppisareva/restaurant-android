@@ -1,36 +1,30 @@
 package com.example.polina.restaurantapplication;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by polina on 27.01.16.
  */
-public class ListFragment extends Fragment {
+public class ListFragment extends Fragment implements ViewUpdater {
 
-        private static final String ARG_SECTION_NUMBER = "section_number";
 
     BroadcastReceiver receiver;
+    public static  boolean flag = true;
+    private RecyclerView.Adapter adapter;
+    RecyclerViewPositionHelper mRecyclerViewHelper;
+    App application;
+    int offset = 10;
+    private  final int STEP = 10;
 
-        public static ListFragment newInstance(int sectionNumber) {
+        public static ListFragment newInstance() {
             ListFragment fragment = new ListFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
             return fragment;
         }
 
@@ -40,43 +34,44 @@ public class ListFragment extends Fragment {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_list, container, false);
+            application = ((App)getActivity().getApplication());
             RecyclerView restaurantList = (RecyclerView) v.findViewById(R.id.my_recycler_view);
-
-            final RecyclerView.Adapter adapter = new RestaurantAdapter(getActivity(),((App)getActivity().getApplication()).restaurantList);
-            restaurantList.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                }
-            });
+            adapter = new RestaurantAdapter(getActivity(),((App)getActivity().getApplication()).restaurantList);
             restaurantList.setAdapter(adapter);
-
-
             final RecyclerView.LayoutManager mLayoutManager= new LinearLayoutManager(getActivity());
             restaurantList.setLayoutManager(mLayoutManager);
-            receiver = new BroadcastReceiver() {
+            restaurantList.setOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
-                public void onReceive(Context context, Intent intent) {
-                    String message = intent.getStringExtra(App.INTENT_MESSAGE);
-                    System.out.println(message);
-                    adapter.notifyDataSetChanged();
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    mRecyclerViewHelper = RecyclerViewPositionHelper.createHelper(recyclerView);
+                    int visibleItemCount = recyclerView.getChildCount();
+                    int totalItemCount = mRecyclerViewHelper.getItemCount();
+                    int firstVisibleItem = mRecyclerViewHelper.findFirstVisibleItemPosition();
+                    System.err.println("first visible id" + firstVisibleItem + "visibleItemCount " + visibleItemCount + "totalItemCount" + totalItemCount);
+                    if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount > 1) {
+                        if (flag) {
+                            flag = false;
+                            System.out.println(flag);
+                          application.getRestorans(offset);
+                            offset += STEP;
+
+                        }
 
 
+                    }
                 }
-            };
-            LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, new IntentFilter(App.BROADCAST_INTENT));
-
-
-
+            });
             return v;
         }
 
-    @Override
-    public void onDestroy() {
-        // Unregister since the activity is about to be closed.
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(receiver);
-        super.onDestroy();
+
+    public void updateView() {
+        adapter.notifyDataSetChanged();
     }
+
+
+
     }
 
 

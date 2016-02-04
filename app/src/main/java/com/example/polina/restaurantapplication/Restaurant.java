@@ -1,27 +1,59 @@
 package com.example.polina.restaurantapplication;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.example.polina.restaurantapplication.dto.FoursquareDto;
+
+import java.io.Serializable;
 
 /**
  * Created by polina on 28.01.16.
  */
-public class Restaurant {
+public class Restaurant implements Serializable {
     private String name;
     private double lat;
     private double lng;
     private int distance;
     private String formattedPhone;
-    private int tier = 0;
+    private String address;
+    private String tier = "";
+    private String photo;
+
 
     public Restaurant(FoursquareDto.Result result) {
         name=result.venue.getName();
         lat=result.venue.getLocation().getLat();
         lng=result.venue.getLocation().getLng();
+
         distance=result.venue.getLocation().getDistance();
+        System.out.println(distance);
         formattedPhone=result.venue.getContact().getFormattedPhone();
-        if(result.venue.getPrice()!=null)
-            tier=result.venue.getPrice().getTier();
+        address = result.venue.getLocation().getAddress();
+        if(result.photo!=null) {
+            photo = result.photo.getPrefix() + "70x70" + result.photo.getSuffix();
+        }
+
+        if(result.venue.getPrice()!=null) {
+            tier = "$$$$".substring (0, result.venue.getPrice().getTier());
+        }
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public int getDistance() {
@@ -64,11 +96,12 @@ public class Restaurant {
         this.formattedPhone = formattedPhone;
     }
 
-    public int getTier() {
+    public String getTier() {
         return tier;
     }
 
-    public void setTier(int tier) {
+    public void setTier(String tier) {
         this.tier = tier;
     }
+
 }

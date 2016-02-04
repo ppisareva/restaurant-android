@@ -1,10 +1,19 @@
 package com.example.polina.restaurantapplication;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,6 +21,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -32,16 +42,29 @@ public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    private Location location;
     public static final int FRAGMENT_MAP = 0;
     public static final int FRAGMENT_LIST = 1;
+    private final int OFFSET = 0;
+    App application;
 
+    ListFragment listFragment;
+    MapFragment mapFragment;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter(Utils.BROADCAST_INTENT));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        application = ((App) getApplication());
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
@@ -54,16 +77,12 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.getTabAt(FRAGMENT_LIST).setIcon(R.drawable.ic_list_white_24dp);
 
 
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-           //    ArrayList <Restaurant> restaurants =  ((App) getApplication()).getRestaurants("near", "Kiev", 0);
-        ((App) getApplication()).getRestorans();
 
-
-                System.err.println("Client_id "+ BuildConfig.CLIENT_ID);
+         System.err.println("Client_id " + BuildConfig.CLIENT_ID);
             }
         });
     }
@@ -83,8 +102,8 @@ public class MainActivity extends AppCompatActivity {
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    // handle request
                     System.out.println("query" + query);
+
                     return false;
                 }
 
@@ -103,14 +122,61 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.location) {
             System.out.println(" LOCATION selected ");
-            // handle request
+            Location location = getLocation();
+            if (location == null) {
+                System.err.println("Empty location: ");
+                return true;
+            }
+            application.setLocation(location.getLatitude() + "," + location.getLongitude());
+            System.out.println("location " + application.getLocation());
+
+
+            application.getRestorans(OFFSET);
+
+           LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Utils.BROADCAST_INTENT));
+
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private Location getLocation() {
+        final LocationListener mLocationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(final Location location) {
+                System.err.println("LOCATION: " + location);
+            }
 
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                System.err.println("onStatusChanged: " + provider + " " + extras);
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1, mLocationListener);
+
+        locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 5000, 1, mLocationListener);
+        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (location == null)
+            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (location == null)
+            location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        return location;
+
+    }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
@@ -121,10 +187,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             System.out.println(position);
-            if(position==FRAGMENT_MAP)
+            if (position == FRAGMENT_MAP) {
                 return MapFragment.newInstance(position + 1);
-            else
-                return ListFragment.newInstance(position + 1);
+            } else {
+                if (listFragment == null) {
+                    listFragment = ListFragment.newInstance();
+                }
+                return listFragment;
+            }
 
         }
 
@@ -133,6 +203,23 @@ public class MainActivity extends AppCompatActivity {
             return 2;
         }
     }
+
+
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            listFragment.updateView();
+
+        }
+    };
+
+    @Override
+    public void onStop() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        super.onStop();
+    }
+
+
 
 
 }

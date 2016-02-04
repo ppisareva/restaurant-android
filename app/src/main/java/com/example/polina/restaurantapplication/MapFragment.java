@@ -11,7 +11,7 @@ import android.widget.TextView;
 /**
  * Created by polina on 27.01.16.
  */
-public class MapFragment extends Fragment{
+public class MapFragment extends Fragment implements ViewUpdater {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -36,5 +36,10 @@ public class MapFragment extends Fragment{
         View rootView = inflater.inflate(R.layout.fragment_list, container, false);
 
         return rootView;
+    }
+
+    @Override
+    public void updateView() {
+
     }
 }

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.example.polina.restaurantapplication.dto.FoursquareDto;
+import com.facebook.drawee.backends.pipeline.Fresco;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,13 +26,23 @@ import retrofit2.http.QueryMap;
 public class App extends Application {
 
     private static final String RESTORAN_URL = "https://api.foursquare.com";
-    public static final String BROADCAST_INTENT = "broadcast_intent";
-public static final String INTENT_MESSAGE = "massage";
+    public String location;
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+        restaurantList.clear();
+    }
+
     final ArrayList<Restaurant> restaurantList = new ArrayList<>();
 
     FoursquareApi service;
     @Override
     public void onCreate() {
+        Fresco.initialize(this);
         super.onCreate();
         Retrofit client = new Retrofit.Builder()
                 .baseUrl(RESTORAN_URL)
@@ -41,12 +52,15 @@ public static final String INTENT_MESSAGE = "massage";
     }
 
     interface FoursquareApi {
-        @GET("/v2/search/recommendations?v=20160127&categoryId=4d4b7105d754a06374d81259&sortByDistance=1&radius=2000")
-        public Call<FoursquareDto> getRestorans(@Query("ll") String location, @Query("client_id") String clientId, @Query("client_secret") String clientSecret);
+        @GET("/v2/search/recommendations?v=20160127&categoryId=4d4b7105d754a06374d81259&sortByDistance=1&radius=2000&limit=20")
+        public Call<FoursquareDto> getRestorans(@Query("ll") String location,
+                                                @Query("client_id") String clientId,
+                                                @Query("client_secret") String clientSecret,
+                                                @Query("offset") int offset );
     }
 
-    public void getRestorans() {
-        Call<FoursquareDto> call = service.getRestorans("50.519441,30.485003", BuildConfig.CLIENT_ID, BuildConfig.CLIENT_SECRET);
+    public void getRestorans(int offset) {
+        Call<FoursquareDto> call = service.getRestorans(location, BuildConfig.CLIENT_ID, BuildConfig.CLIENT_SECRET, offset);
 
         System.err.println("========================");
 
@@ -55,19 +69,20 @@ public static final String INTENT_MESSAGE = "massage";
             public void onResponse(retrofit2.Response<FoursquareDto> response) {
                 FoursquareDto dto = response.body();
                 List<Restaurant> restaurantList = new ArrayList<Restaurant>();
-                System.err.println("DTO: " + dto.response.group.results);
+                if (dto.response.group.results != null) {
+
                 List<FoursquareDto.Result> results = dto.response.group.results;
-                for(int i=0; i<results.size();i++){
-                    restaurantList.add(new Restaurant(results.get(i)));
+
+                    System.out.println("size" + results.size());
+                    for (int i = 0; i < results.size(); i++) {
+                        restaurantList.add(new Restaurant(results.get(i)));
+                    }
+                    App.this.restaurantList.addAll(restaurantList);
+                    Intent intent = new Intent(Utils.BROADCAST_INTENT);
+                    intent.putExtra(Utils.INTENT_MESSAGE, "update adapter");
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+                    ListFragment.flag = true;
                 }
-
-
-                App.this.restaurantList.addAll(restaurantList);
-                Intent intent = new Intent(BROADCAST_INTENT);
-                intent.putExtra(INTENT_MESSAGE, "update adapter");
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-
-
 
             }
 

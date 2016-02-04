@@ -21,8 +21,6 @@ public class FoursquareDto {
 
 	public static class Result {
 		public Venue venue;
-
-
-
+		public Photo photo;
 	}
 }
