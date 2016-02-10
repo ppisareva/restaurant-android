@@ -25,6 +25,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
     Context context;
    RelativeLayout layout;
     List<Restaurant> restaurants = new ArrayList<>();
+
     String defaultUri = "https://www.google.com.ua/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwig0uSB597KAhUi_nIKHauwC8gQjRwIBw&url=http%3A%2F%2Fwww.papktop.com%2Ftag%2Ffoursquare-apk&psig=AFQjCNFozIFVJ6vp44E2qaPUTpt_t10mjg&ust=1454699209779427";
 
 
@@ -35,6 +36,7 @@ public class RestaurantAdapter extends RecyclerView.Adapter<RestaurantAdapter.Vi
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.rest_list, parent, false);
         layout = (RelativeLayout)v.findViewById(R.id.rest_list_layout);

@@ -8,21 +8,42 @@ import com.example.polina.restaurantapplication.dto.FoursquareDto;
 
 import java.io.Serializable;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
 /**
  * Created by polina on 28.01.16.
  */
+
+@DatabaseTable
 public class Restaurant implements Serializable {
+
+
+    @DatabaseField(id = true)
+    private String id;
+    @DatabaseField (index = true)
     private String name;
+    @DatabaseField
     private double lat;
+    @DatabaseField
     private double lng;
+    @DatabaseField
     private int distance;
+    @DatabaseField
     private String formattedPhone;
+    @DatabaseField
     private String address;
-    private String tier = "";
+    @DatabaseField
+    private String tier;
+    @DatabaseField
     private String photo;
 
+    public Restaurant() {
+
+    }
 
     public Restaurant(FoursquareDto.Result result) {
+        id=result.venue.getId();
         name=result.venue.getName();
         lat=result.venue.getLocation().getLat();
         lng=result.venue.getLocation().getLng();
@@ -38,6 +59,14 @@ public class Restaurant implements Serializable {
         if(result.venue.getPrice()!=null) {
             tier = "$$$$".substring (0, result.venue.getPrice().getTier());
         }
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getPhoto() {

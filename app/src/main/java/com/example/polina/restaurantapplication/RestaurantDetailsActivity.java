@@ -1,8 +1,10 @@
 package com.example.polina.restaurantapplication;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -13,8 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.polina.restaurantapplication.dto.Venue;
+import com.j256.ormlite.table.TableUtils;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -23,15 +27,18 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
 
     RatingBar ratingBar;
     EditText nick;
+    App application;
+    Restaurant restaurant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        application =(App) getApplication();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.restaunt_details);
-        Restaurant restaurant = (Restaurant) getIntent().getSerializableExtra(Utils.RESTAURANT);
-        System.out.println("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" + restaurant);
+        restaurant = (Restaurant) getIntent().getSerializableExtra(Utils.RESTAURANT);
+
         ((TextView) findViewById(R.id.dialog_name)).setText(restaurant.getName());
         ((TextView) findViewById(R.id.dialog_adress)).setText(restaurant.getAddress());
         ((TextView) findViewById(R.id.dialog_number)).setText(restaurant.getFormattedPhone());
@@ -42,8 +49,10 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
 
     public void onClick(View v){
     float rating =  ratingBar.getRating();
+
         String nickname = String.valueOf(nick.getText());
-        Toast.makeText(this, "rating "+ rating+ " nickname " + nickname, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "rating "+ rating + " nickname " + nickname, Toast.LENGTH_LONG).show();
+        finish();
     }
 
     @Override

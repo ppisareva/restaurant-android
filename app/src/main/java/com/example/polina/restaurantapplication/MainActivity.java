@@ -1,40 +1,34 @@
 package com.example.polina.restaurantapplication;
 
-import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
+
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
+
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
+
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import com.j256.ormlite.table.TableUtils;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int FRAGMENT_LIST = 1;
     private final int OFFSET = 0;
     App application;
+    List<Restaurant> restaurantLis = new ArrayList<>();
 
     ListFragment listFragment;
     MapFragment mapFragment;
@@ -75,16 +70,16 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
         tabLayout.getTabAt(FRAGMENT_MAP).setIcon(R.drawable.ic_map_white_24dp);
         tabLayout.getTabAt(FRAGMENT_LIST).setIcon(R.drawable.ic_list_white_24dp);
+        try {
+            restaurantLis = application.restaurantDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if(restaurantLis!=null){
+            application.restaurantList.addAll(restaurantLis);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(Utils.BROADCAST_INTENT));
+        }
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-         System.err.println("Client_id " + BuildConfig.CLIENT_ID);
-            }
-        });
     }
 
 
@@ -126,6 +121,13 @@ public class MainActivity extends AppCompatActivity {
             if (location == null) {
                 System.err.println("Empty location: ");
                 return true;
+            }
+
+            try {
+                TableUtils.clearTable(application.getConnectionSource(), Restaurant.class);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
             application.setLocation(location.getLatitude() + "," + location.getLongitude());
             System.out.println("location " + application.getLocation());

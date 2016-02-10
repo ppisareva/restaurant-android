@@ -6,11 +6,15 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.example.polina.restaurantapplication.dto.FoursquareDto;
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.j256.ormlite.android.AndroidConnectionSource;
+import com.j256.ormlite.dao.BaseDaoImpl;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -18,7 +22,6 @@ import retrofit2.GsonConverterFactory;
 import retrofit2.Retrofit;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
-import retrofit2.http.QueryMap;
 
 /**
  * Created by polina on 27.01.16.
@@ -27,6 +30,13 @@ public class App extends Application {
 
     private static final String RESTORAN_URL = "https://api.foursquare.com";
     public String location;
+    ConnectionSource connectionSource;
+    Dao<Restaurant,String> restaurantDao;
+
+
+    public ConnectionSource getConnectionSource() {
+        return connectionSource;
+    }
 
     public String getLocation() {
         return location;
@@ -49,7 +59,17 @@ public class App extends Application {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         service = client.create(FoursquareApi.class);
+
+
+       connectionSource = new AndroidConnectionSource(new RestaurantOpenHelper(this));
+        try {
+            restaurantDao = new RestaurantDao(connectionSource);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
+
+
 
     interface FoursquareApi {
         @GET("/v2/search/recommendations?v=20160127&categoryId=4d4b7105d754a06374d81259&sortByDistance=1&radius=2000&limit=20")
@@ -75,13 +95,28 @@ public class App extends Application {
 
                     System.out.println("size" + results.size());
                     for (int i = 0; i < results.size(); i++) {
-                        restaurantList.add(new Restaurant(results.get(i)));
+                        Restaurant restaurant = new Restaurant(results.get(i));
+                        restaurantList.add(restaurant);
+                        try {
+
+                            if (restaurantDao.create(restaurant) != 1) {
+                                throw new Exception("Failure adding account");
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                     }
                     App.this.restaurantList.addAll(restaurantList);
                     Intent intent = new Intent(Utils.BROADCAST_INTENT);
                     intent.putExtra(Utils.INTENT_MESSAGE, "update adapter");
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
                     ListFragment.flag = true;
+                    try {
+                        connectionSource.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
 
             }
@@ -95,4 +130,6 @@ public class App extends Application {
         System.err.println("========================" + restaurantList);
 
     }
+
+
 }
