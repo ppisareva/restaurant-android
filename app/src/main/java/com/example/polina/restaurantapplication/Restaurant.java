@@ -17,7 +17,7 @@ public class Restaurant implements Serializable {
 
     @DatabaseField(id = true)
     private String id;
-    @DatabaseField (index = true)
+    @DatabaseField(index = true)
     private String name;
     @DatabaseField
     private double lat;
@@ -42,30 +42,28 @@ public class Restaurant implements Serializable {
 
     public Restaurant(FoursquareDto.Result result, Location location) {
 
-        id=result.venue.getId();
-        name=result.venue.getName();
-        lat=result.venue.getLocation().getLat();
-        lng=result.venue.getLocation().getLng();
+        id = result.venue.getId();
+        name = result.venue.getName();
+        lat = result.venue.getLocation().getLat();
+        lng = result.venue.getLocation().getLng();
         rating = result.venue.getRating();
 
-        if( result.venue.getLocation().getDistance()!=0){
-            distance=result.venue.getLocation().getDistance();
+        if (result.venue.getLocation().getDistance() != 0) {
+            distance = result.venue.getLocation().getDistance();
         } else {
-           distance = (int) location.distanceTo(new Location(lat+","+lng));
+            distance = (int) location.distanceTo(new Location(lat + "," + lng));
         }
-        formattedPhone=result.venue.getContact().getFormattedPhone();
+        formattedPhone = result.venue.getContact().getFormattedPhone();
         address = result.venue.getLocation().getAddress();
-        if(result.photo!=null) {
+        if (result.photo != null) {
             photo = result.photo.getPrefix() + "70x70" + result.photo.getSuffix();
         }
-
-        if(result.venue.getPrice()!=null) {
+        if (result.venue.getPrice() != null) {
             tier = "$$$$".substring(0, result.venue.getPrice().getTier());
         }
     }
 
     public Double getRating() {
-
         return rating;
     }
 
@@ -87,11 +85,9 @@ public class Restaurant implements Serializable {
     }
 
 
-
     public int getDistance() {
         return distance;
     }
-
 
 
     public String getName() {

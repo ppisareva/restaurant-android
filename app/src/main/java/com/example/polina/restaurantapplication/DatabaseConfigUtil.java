@@ -10,9 +10,8 @@ import java.sql.SQLException;
  * Created by polina on 07.02.16.
  */
 public class DatabaseConfigUtil extends OrmLiteConfigUtil {
-    private static final Class<?>[] classes = new Class[] {
+    private static final Class<?>[] classes = new Class[]{
             Restaurant.class
     };
-
-
 }
+

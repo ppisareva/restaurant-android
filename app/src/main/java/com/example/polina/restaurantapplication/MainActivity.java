@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -22,23 +21,16 @@ import android.view.MenuItem;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
-    public static final int FRAGMENT_MAP = 0;
-    public static final int FRAGMENT_LIST = 1;
     private final int OFFSET = 0;
-    private final int MAX_WIDT = 3000;
-    LocationManager locationManager;
-
-    App application;
-
-    ListFragment listFragment;
-    MapFragment mapFragment;
+    private final int MAX_WIDTH = 3000;
+    private App application;
+    private ListFragment listFragment;
+    private MapFragment mapFragment;
 
     @Override
     protected void onStart() {
@@ -49,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         setContentView(R.layout.activity_main);
         application = ((App) getApplication());
         application.getCurrentLocation();
@@ -60,31 +51,26 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-        tabLayout.getTabAt(FRAGMENT_MAP).setIcon(R.drawable.ic_map_white_24dp);
-        tabLayout.getTabAt(FRAGMENT_LIST).setIcon(R.drawable.ic_list_white_24dp);
-
+        tabLayout.getTabAt(Utils.FRAGMENT_MAP).setIcon(R.drawable.ic_map_white_24dp);
+        tabLayout.getTabAt(Utils.FRAGMENT_LIST).setIcon(R.drawable.ic_list_white_24dp);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchManager searchManager = (SearchManager) MainActivity.this.getSystemService(Context.SEARCH_SERVICE);
-
         SearchView searchView = null;
         if (searchItem != null) {
             searchView = (SearchView) searchItem.getActionView();
         }
         if (searchView != null) {
-
-            searchView.setMaxWidth(MAX_WIDT);
+            searchView.setMaxWidth(MAX_WIDTH);
             searchView.setSearchableInfo(searchManager.getSearchableInfo(MainActivity.this.getComponentName()));
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    Utils.LOAD_FROM_CACHE = true;
-                    System.out.println("query" + query);
+                    application.setLoadFromCache(true);
                     application.getCurrentLocation();
                     application.setDownloadedMarkers(application.getDownloadedMarkers() + application.restaurantList.size());
                     application.setAddress(query);
@@ -98,26 +84,22 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    System.out.println("newText" + newText);
-
                     return true;
                 }
             });
         }
         return super.onCreateOptionsMenu(menu);
-
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.location) {
-            Utils.LOAD_FROM_CACHE = true;
+            application.setLoadFromCache(true);
             application.setAddress("");
             application.setDownloadedMarkers(application.getDownloadedMarkers() + application.restaurantList.size());
             application.clearList();
             application.getCurrentLocation();
             if (application.getLocation() == null) {
-                System.err.println("Empty location: ");
                 return true;
             }
             try {
@@ -146,10 +128,10 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            if (position == FRAGMENT_MAP && mapFragment == null) {
+            if (position == Utils.FRAGMENT_MAP && mapFragment == null) {
                 return mapFragment = new MapFragment().newInstance();
             }
-            if (position == FRAGMENT_LIST && listFragment == null) {
+            if (position == Utils.FRAGMENT_LIST && listFragment == null) {
                 return listFragment = new ListFragment().newInstance();
             }
             return listFragment;
@@ -160,7 +142,6 @@ public class MainActivity extends AppCompatActivity {
             return 2;
         }
     }
-
 
     BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -175,6 +156,4 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         super.onStop();
     }
-
-
 }

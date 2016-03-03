@@ -12,19 +12,18 @@ import android.widget.Toast;
 
 public class RestaurantDetailsActivity extends AppCompatActivity {
 
-    RatingBar ratingBar;
-    EditText nick;
-    App application;
-    Restaurant restaurant;
+    private RatingBar ratingBar;
+    private EditText nick;
+    private App application;
+    private Restaurant restaurant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         application = (App) getApplication();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.restaunt_details);
-        restaurant =  application.getRestaurantList().get(getIntent().getIntExtra(Utils.ID,0));
+        restaurant = application.getRestaurantList().get(getIntent().getIntExtra(Utils.ID, 0));
         ((TextView) findViewById(R.id.dialog_name)).setText(restaurant.getName());
         ((TextView) findViewById(R.id.dialog_adress)).setText(restaurant.getAddress());
         ((TextView) findViewById(R.id.dialog_number)).setText(restaurant.getFormattedPhone());

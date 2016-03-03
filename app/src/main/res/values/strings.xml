@@ -7,4 +7,6 @@
     <string name="enter_nick">enter your nickname</string>
     <string name="default_uri"></string>
     <string name="title_activity_maps">Map</string>
+    <string name="failure">No Internet Connection </string>
+    <string name="error">Wrong Address</string>
 </resources>

@@ -23,8 +23,8 @@ import java.util.List;
  */
 public class MapFragment extends SupportMapFragment implements ViewUpdater {
 
-    App application;
-    LatLng location;
+    private App application;
+    private LatLng location;
     private GoogleMap map;
 
     public static MapFragment newInstance() {
@@ -42,13 +42,15 @@ public class MapFragment extends SupportMapFragment implements ViewUpdater {
         application = (App) getActivity().getApplication();
         map = getMap();
         map.setMyLocationEnabled(true);
+        if(application.getLocation()!=null) {
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(application.getLocation().getLatitude(), application.getLocation().getLongitude()), 15));
+        }
         updateMarkers();
         map.animateCamera(CameraUpdateFactory.zoomTo(15), 500, null);
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 Intent intent = new Intent(getActivity(), RestaurantDetailsActivity.class);
-                System.out.println(marker.getId());
                 int position = Integer.parseInt(marker.getId().substring(1));
                 intent.putExtra(Utils.ID, position - application.getDownloadedMarkers());
                 getActivity().startActivity(intent);
@@ -74,7 +76,6 @@ public class MapFragment extends SupportMapFragment implements ViewUpdater {
             location = new LatLng(restaurantList.get(0).getLat(), restaurantList.get(0).getLng());
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
         }
-
         for (Restaurant restaurant : restaurantList) {
             LatLng latLng = new LatLng(restaurant.getLat(), restaurant.getLng());
             MarkerOptions markerOptions = new MarkerOptions()
