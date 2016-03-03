@@ -15,7 +15,7 @@ import java.sql.SQLException;
  */
 public class RestaurantOpenHelper extends OrmLiteSqliteOpenHelper {
 
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 3 ;
     public static final String DATABASE_NAME = "Restaurant.db";
 
 
