@@ -11,6 +11,16 @@ public class Venue implements Serializable {
 
 	private String id;
 	private String name;
+
+	public double getRating() {
+		return rating;
+	}
+
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+
+	private double rating;
 	private Location location;
 	private Contact contact;
 

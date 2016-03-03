@@ -37,24 +37,6 @@ public class RecyclerViewPositionHelper {
         return child == null ? RecyclerView.NO_POSITION : recyclerView.getChildAdapterPosition(child);
     }
 
-
-    public int findFirstCompletelyVisibleItemPosition() {
-        final View child = findOneVisibleChild(0, layoutManager.getChildCount(), true, false);
-        return child == null ? RecyclerView.NO_POSITION : recyclerView.getChildAdapterPosition(child);
-    }
-
-
-    public int findLastVisibleItemPosition() {
-        final View child = findOneVisibleChild(layoutManager.getChildCount() - 1, -1, false, true);
-        return child == null ? RecyclerView.NO_POSITION : recyclerView.getChildAdapterPosition(child);
-    }
-
-
-    public int findLastCompletelyVisibleItemPosition() {
-        final View child = findOneVisibleChild(layoutManager.getChildCount() - 1, -1, true, false);
-        return child == null ? RecyclerView.NO_POSITION : recyclerView.getChildAdapterPosition(child);
-    }
-
     View findOneVisibleChild(int fromIndex, int toIndex, boolean completelyVisible,
                              boolean acceptPartiallyVisible) {
         OrientationHelper helper;
@@ -63,7 +45,6 @@ public class RecyclerViewPositionHelper {
         } else {
             helper = OrientationHelper.createHorizontalHelper(layoutManager);
         }
-
         final int start = helper.getStartAfterPadding();
         final int end = helper.getEndAfterPadding();
         final int next = toIndex > fromIndex ? 1 : -1;

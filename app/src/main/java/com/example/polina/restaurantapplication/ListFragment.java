@@ -20,8 +20,9 @@ public class ListFragment extends Fragment implements ViewUpdater {
     private RecyclerView.Adapter adapter;
     RecyclerViewPositionHelper mRecyclerViewHelper;
     App application;
-    int offset = 10;
-    private  final int STEP = 10;
+    private  final int STEP = 20;
+    int offset = STEP;
+    RecyclerView restaurantList;
 
         public static ListFragment newInstance() {
             ListFragment fragment = new ListFragment();
@@ -35,8 +36,8 @@ public class ListFragment extends Fragment implements ViewUpdater {
                                  Bundle savedInstanceState) {
             View v = inflater.inflate(R.layout.fragment_list, container, false);
             application = ((App)getActivity().getApplication());
-            RecyclerView restaurantList = (RecyclerView) v.findViewById(R.id.my_recycler_view);
-            adapter = new RestaurantAdapter(getActivity(),((App)getActivity().getApplication()).restaurantList);
+            restaurantList = (RecyclerView) v.findViewById(R.id.my_recycler_view);
+            adapter = new RestaurantAdapter(getActivity(),  application.getRestaurantList());
             restaurantList.setAdapter(adapter);
             final RecyclerView.LayoutManager mLayoutManager= new LinearLayoutManager(getActivity());
             restaurantList.setLayoutManager(mLayoutManager);
@@ -51,14 +52,12 @@ public class ListFragment extends Fragment implements ViewUpdater {
                     System.err.println("first visible id" + firstVisibleItem + "visibleItemCount " + visibleItemCount + "totalItemCount" + totalItemCount);
                     if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount > 1) {
                         if (flag) {
+                            if (!Utils.LOAD_FROM_CACHE) return;
                             flag = false;
                             System.out.println(flag);
-                          application.getRestorans(offset);
+                            application.getRestorans(offset);
                             offset += STEP;
-
                         }
-
-
                     }
                 }
             });
@@ -68,8 +67,8 @@ public class ListFragment extends Fragment implements ViewUpdater {
 
     public void updateView() {
         adapter.notifyDataSetChanged();
-    }
 
+    }
 
 
     }

@@ -1,13 +1,9 @@
 package com.example.polina.restaurantapplication;
 
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
+import android.location.Location;
 import com.example.polina.restaurantapplication.dto.FoursquareDto;
-
 import java.io.Serializable;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -36,20 +32,27 @@ public class Restaurant implements Serializable {
     @DatabaseField
     private String tier;
     @DatabaseField
+    private double rating;
+    @DatabaseField
     private String photo;
 
     public Restaurant() {
 
     }
 
-    public Restaurant(FoursquareDto.Result result) {
+    public Restaurant(FoursquareDto.Result result, Location location) {
+
         id=result.venue.getId();
         name=result.venue.getName();
         lat=result.venue.getLocation().getLat();
         lng=result.venue.getLocation().getLng();
+        rating = result.venue.getRating();
 
-        distance=result.venue.getLocation().getDistance();
-        System.out.println(distance);
+        if( result.venue.getLocation().getDistance()!=0){
+            distance=result.venue.getLocation().getDistance();
+        } else {
+           distance = (int) location.distanceTo(new Location(lat+","+lng));
+        }
         formattedPhone=result.venue.getContact().getFormattedPhone();
         address = result.venue.getLocation().getAddress();
         if(result.photo!=null) {
@@ -57,8 +60,13 @@ public class Restaurant implements Serializable {
         }
 
         if(result.venue.getPrice()!=null) {
-            tier = "$$$$".substring (0, result.venue.getPrice().getTier());
+            tier = "$$$$".substring(0, result.venue.getPrice().getTier());
         }
+    }
+
+    public Double getRating() {
+
+        return rating;
     }
 
     public String getId() {
@@ -73,25 +81,18 @@ public class Restaurant implements Serializable {
         return photo;
     }
 
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
 
     public String getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
+
 
     public int getDistance() {
         return distance;
     }
 
-    public void setDistance(int distance) {
-        this.distance = distance;
-    }
+
 
     public String getName() {
         return name;
@@ -105,24 +106,13 @@ public class Restaurant implements Serializable {
         return lat;
     }
 
-    public void setLat(double lat) {
-        this.lat = lat;
-    }
 
     public double getLng() {
         return lng;
     }
 
-    public void setLng(double lng) {
-        this.lng = lng;
-    }
-
     public String getFormattedPhone() {
         return formattedPhone;
-    }
-
-    public void setFormattedPhone(String formattedPhone) {
-        this.formattedPhone = formattedPhone;
     }
 
     public String getTier() {

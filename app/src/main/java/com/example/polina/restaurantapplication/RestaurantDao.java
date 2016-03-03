@@ -1,6 +1,5 @@
 package com.example.polina.restaurantapplication;
 
-import com.example.polina.restaurantapplication.Restaurant;
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.support.ConnectionSource;
 
